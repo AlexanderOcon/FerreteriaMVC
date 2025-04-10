@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAO;
 
 import Modelo.DetalleCompra;
@@ -13,10 +9,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author COMPHP
- */
+
 public class DetalleCompraDAO {
 
     public void crearDetalleCompra(DetalleCompra detalle) throws SQLException {
@@ -37,7 +30,7 @@ public class DetalleCompraDAO {
         }
     }
 
-    public List<DetalleCompra> leerTodosDetallesCompra() throws SQLException {
+public List<DetalleCompra> leerTodosDetallesCompra() throws SQLException {
         String sql = "SELECT * FROM Detalles_Compras";
         List<DetalleCompra> detalles = new ArrayList<>();
 
@@ -52,12 +45,53 @@ public class DetalleCompraDAO {
                 detalles.add(detalle);
             }
         }
-        return detalles;
-    }
+    return detalles;
+}
 
-    public static void main(String[] args) {
+public void actualizarDetalleCompra(DetalleCompra detalle) throws SQLException {
+    String sql = "UPDATE Detalles_Compras SET id_compra = ?, id_producto = ?, cantidad = ?, precio_unitario = ? WHERE id_detalle_compra = ?";
+    
+    try (Connection c = ConexionDB.getConnection();
+         PreparedStatement stmt = c.prepareStatement(sql)) {
+        stmt.setInt(1, detalle.getIdCompra());
+        stmt.setInt(2, detalle.getIdProducto());
+        stmt.setInt(3, detalle.getCantidad());
+        stmt.setFloat(4, detalle.getPrecioUnitario());
+        stmt.setInt(5, detalle.getIdDetalleCompra());
+        stmt.executeUpdate();
+    }
+}
+
+public void eliminarDetalleCompra(int idDetalleCompra) throws SQLException {
+    String sql = "DELETE FROM Detalles_Compras WHERE id_detalle_compra = ?";
+    
+    try (Connection c = ConexionDB.getConnection();
+         PreparedStatement stmt = c.prepareStatement(sql)) {
+        stmt.setInt(1, idDetalleCompra);
+        stmt.executeUpdate();
+    }
+}
+
+
+public static void main(String[] args) {
         try {
             DetalleCompraDAO dao = new DetalleCompraDAO();
+
+            // Actualizar un detalle de compra
+            DetalleCompra detalle = new DetalleCompra();
+            detalle.setIdDetalleCompra(1); // ID existente
+            detalle.setIdCompra(1);
+            detalle.setIdProducto(2);
+            detalle.setCantidad(5);
+            detalle.setPrecioUnitario(100.0f);
+            dao.actualizarDetalleCompra(detalle);
+            System.out.println("Detalle de compra actualizado.");
+
+            // Eliminar un detalle de compra
+            dao.eliminarDetalleCompra(2); // ID a eliminar
+            System.out.println("Detalle de compra eliminado.");
+
+            // Leer y mostrar todos los detalles de compra para verificar
             List<DetalleCompra> detalles = dao.leerTodosDetallesCompra();
             System.out.println("Lista de detalles de compra:");
             for (DetalleCompra det : detalles) {
@@ -67,7 +101,7 @@ public class DetalleCompraDAO {
                         + ", Cantidad: " + det.getCantidad()
                         + ", Precio Unitario: " + det.getPrecioUnitario());
             }
-        } catch (SQLException e) {
+           }catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
     }

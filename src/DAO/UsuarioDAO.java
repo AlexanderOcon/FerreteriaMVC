@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAO;
 
 import Modelo.Usuario;
@@ -13,10 +9,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author COMPHP
- */
+
 public class UsuarioDAO {
 
     public void crearUsuario(Usuario usuario) throws SQLException {
@@ -47,11 +40,49 @@ public class UsuarioDAO {
             }
         }
         return usuarios;
-    }
+}
 
-    public static void main(String[] args) {
+public void actualizarUsuario(Usuario usuario) throws SQLException {
+    String sql = "UPDATE Usuarios SET usuario = ?, contraseña = ? WHERE id_usuario = ?";
+    
+    try (Connection c = ConexionDB.getConnection();
+         PreparedStatement stmt = c.prepareStatement(sql)) {
+        stmt.setString(1, usuario.getUsuario());
+        stmt.setString(2, usuario.getContrasena());
+        stmt.setInt(3, usuario.getIdUsuario());
+        stmt.executeUpdate();
+    }
+}
+
+
+public void eliminarUsuario(int idUsuario) throws SQLException {
+    String sql = "DELETE FROM Usuarios WHERE id_usuario = ?";
+    
+    try (Connection c = ConexionDB.getConnection();
+         PreparedStatement stmt = c.prepareStatement(sql)) {
+        stmt.setInt(1, idUsuario);
+        stmt.executeUpdate();
+    }
+}
+
+
+public static void main(String[] args) {
         try {
             UsuarioDAO dao = new UsuarioDAO();
+
+            // Actualizar un usuario
+            Usuario usuario = new Usuario();
+            usuario.setIdUsuario(1); // ID existente
+            usuario.setUsuario("nuevo_usuario");
+            usuario.setContrasena("nueva_contraseña");
+            dao.actualizarUsuario(usuario);
+            System.out.println("Usuario actualizado.");
+
+            // Eliminar un usuario
+            dao.eliminarUsuario(2); // ID a eliminar
+            System.out.println("Usuario eliminado.");
+
+            // Leer y mostrar todos los usuarios para verificar
             List<Usuario> usuarios = dao.leerTodosUsuarios();
             System.out.println("Lista de usuarios:");
             for (Usuario usu : usuarios) {
@@ -63,5 +94,4 @@ public class UsuarioDAO {
             System.err.println("Error: " + e.getMessage());
         }
     }
-
 }
